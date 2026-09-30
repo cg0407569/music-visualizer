@@ -4,7 +4,7 @@ html
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Music Visualizer</title>
+    <title>Free Flow Music Visualizer & Lyric Generator</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,9 +12,9 @@ html
             padding: 0;
         }
         body {
-            background-color: #050508;
+            background-color: #030306;
             color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
             height: 100vh;
             display: flex;
@@ -37,84 +37,46 @@ html
             height: 100%;
             z-index: 1;
         }
-        #centerInterface {
-            position: relative;
-            z-index: 3;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: none;
-        }
-        #logoFrame {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #1a1a2e 0%, #0c0c14 100%);
-            border: 4px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.05s ease-out;
-            pointer-events: auto;
-            cursor: pointer;
-        }
-        #logoImage {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        #logoPlaceholder {
-            font-size: 14px;
-            text-align: center;
-            padding: 20px;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
-        }
         #lyricsContainer {
             position: absolute;
-            bottom: 12%;
+            bottom: 18%;
             left: 50%;
             transform: translateX(-50%);
             z-index: 4;
             text-align: center;
             width: 80%;
             pointer-events: none;
-            text-shadow: 0 0 15px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 229, 255, 0.5);
+            text-shadow: 0 0 20px rgba(0, 0, 0, 1), 0 0 10px rgba(0, 229, 255, 0.6);
         }
         #currentLyric {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
             color: #ffffff;
             margin-bottom: 8px;
             letter-spacing: 1px;
-            transition: all 0.2s ease;
+            transition: transform 0.1s ease;
         }
         #nextLyric {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 400;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.45);
             letter-spacing: 0.5px;
-            transition: all 0.2s ease;
         }
         #controlPanel {
             position: absolute;
             top: 20px;
             left: 20px;
             z-index: 10;
-            background: rgba(10, 10, 18, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(8, 8, 14, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 20px;
-            border-radius: 12px;
-            width: 320px;
+            border-radius: 14px;
+            width: 340px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            gap: 14px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
         }
         .panelSection {
             display: flex;
@@ -122,51 +84,40 @@ html
             gap: 6px;
         }
         label {
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.5);
             font-weight: 600;
         }
         .fileInputWrapper {
             position: relative;
             width: 100%;
             height: 38px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-        .fileInputWrapper:hover {
-            background: rgba(255, 255, 255, 0.1);
         }
         .fileInputWrapper input[type="file"] {
             position: absolute;
-            left: 0;
-            top: 0;
             opacity: 0;
             width: 100%;
             height: 100%;
             cursor: pointer;
         }
-        .fileLabelText {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.8);
-        }
         textarea {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
             color: #fff;
-            padding: 8px;
+            padding: 10px;
             font-family: monospace;
             font-size: 11px;
-            resize: vertical;
-            height: 80px;
+            height: 90px;
         }
         .sliderGroup {
             display: flex;
@@ -176,61 +127,128 @@ html
         input[type="range"] {
             flex: 1;
             accent-color: #00e5ff;
+            cursor: pointer;
         }
         .sliderVal {
-            font-size: 12px;
+            font-size: 11px;
             font-family: monospace;
             width: 30px;
             text-align: right;
-        }
-        .btnRow {
-            display: flex;
-            gap: 10px;
+            color: rgba(255, 255, 255, 0.8);
         }
         button {
-            flex: 1;
             background: #00e5ff;
             color: #000;
             border: none;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 10px 14px;
+            border-radius: 8px;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        button:hover {
+        button:hover:not(:disabled) {
             background: #00b3cc;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.35);
         }
         button:disabled {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.2);
             cursor: not-allowed;
-            box-shadow: none;
         }
-        #recordBtn {
-            background: #ff0055;
-            color: #fff;
+        #stampBtn {
+            background: #ffe600;
+            color: #000;
         }
-        #recordBtn:hover {
-            background: #d60048;
-            box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+        #stampBtn:hover:not(:disabled) {
+            background: #cca700;
+            box-shadow: 0 0 15px rgba(255, 230, 0, 0.35);
         }
-        #recordBtn.recording {
-            animation: pulseRecord 1.5s infinite;
-            background: #bc0000;
+        
+        /* Spotify Player Dashboard Layout */
+        #playerDashboard {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            width: 60%;
+            min-width: 450px;
+            max-width: 800px;
+            background: rgba(12, 12, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
         }
-        @keyframes pulseRecord {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
+        .playerControls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
-        #audioElement {
-            display: none;
+        .mainPlayBtn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            border: none;
         }
+        .mainPlayBtn:hover:not(:disabled) {
+            transform: scale(1.06);
+            background: #00e5ff;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+        .timelineContainer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+        .timeLabel {
+            font-size: 11px;
+            font-family: monospace;
+            color: rgba(255, 255, 255, 0.5);
+            width: 45px;
+        }
+        .timeLabel.right { text-align: right; }
+        .scrubBar {
+            flex: 1;
+            height: 5px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            outline: none;
+            transition: background 0.2s;
+        }
+        .scrubBar::-webkit-slider-runnable-track { width: 100%; height: 5px; cursor: pointer; }
+        .scrubBar::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00e5ff;
+            cursor: pointer;
+            margin-top: -3.5px;
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
+        }
+        #recordBtn { background: #ff0055; color: white; }
+        #audioElement { display: none; }
     </style>
 </head>
 <body>
@@ -238,76 +256,52 @@ html
     <div id="appContainer">
         <canvas id="visualizerCanvas"></canvas>
         
-        <div id="centerInterface">
-            <div id="logoFrame" onclick="document.getElementById('logoInput').click()">
-                <img id="logoImage" src="" style="display: none;">
-                <div id="logoPlaceholder">Click to<br>Load Logo</div>
-            </div>
-        </div>
-
         <div id="lyricsContainer">
-            <div id="currentLyric"></div>
+            <div id="currentLyric">Load a song to begin flow...</div>
             <div id="nextLyric"></div>
         </div>
 
+        <!-- Left Setup Panel: Generator Matrix -->
         <div id="controlPanel">
             <div class="panelSection">
-                <label>1. Audio Track</label>
+                <label>1. Audio Track Source</label>
                 <div class="fileInputWrapper">
-                    <span class="fileLabelText" id="audioTrackLabel">Choose audio file...</span>
+                    <span id="audioTrackLabel" style="font-size:12px;color:rgba(255,255,255,0.7)">Choose audio file...</span>
                     <input type="file" id="audioInput" accept="audio/*">
                 </div>
             </div>
 
             <div class="panelSection">
-                <label>2. Center Logo Image</label>
-                <div class="fileInputWrapper">
-                    <span class="fileLabelText" id="logoFileLabel">Choose square image...</span>
-                    <input type="file" id="logoInput" accept="image/*">
-                </div>
+                <label>2. Live Lyric Timestamp Generator</label>
+                <span style="font-size: 10px; color:rgba(255,255,255,0.4)">Paste text, play music, and tap Stamp or Spacebar on the beat:</span>
+                <textarea id="lyricsTextarea" placeholder="Line 1 of song&#10;Line 2 of song&#10;Line 3 of song"></textarea>
+                <button id="stampBtn" disabled>⚡ Stamp Current Line</button>
             </div>
 
             <div class="panelSection">
-                <label>3. Lyrics ([mm:ss.xx] Format)</label>
-                <textarea id="lyricsInput" placeholder="[00:01.00] Welcome to the mix&#10;[00:04.50] Feel the bass particle flow"></textarea>
-            </div>
-
-            <div class="panelSection">
-                <label>Aura Base Hue</label>
+                <label>Aura Particle Color Hue</label>
                 <div class="sliderGroup">
-                    <input type="range" id="hueSlider" min="0" max="360" value="190">
-                    <span class="sliderVal" id="hueVal">190</span>
+                    <input type="range" id="hueSlider" min="0" max="360" value="195">
+                    <span class="sliderVal" id="hueVal">195</span>
                 </div>
             </div>
 
             <div class="panelSection">
-                <label>Bass Sensitivity</label>
+                <label>Bass Flow Velocity</label>
                 <div class="sliderGroup">
                     <input type="range" id="sensSlider" min="1" max="5" step="0.1" value="2.5">
                     <span class="sliderVal" id="sensVal">2.5</span>
                 </div>
             </div>
-
-            <div class="btnRow">
-                <button id="playBtn" disabled>Play</button>
-                <button id="recordBtn" disabled>Record Video</button>
-            </div>
+            
+            <button id="recordBtn" disabled>Record Layout Video</button>
         </div>
-    </div>
 
-    <audio id="audioElement" controls></audio>
-
-    <script>
-        // Core Web Audio & Graphic Element Selectors
-        const audioInput = document.getElementById('audioInput');
-        const logoInput = document.getElementById('logoInput');
-        const lyricsInput = document.getElementById('lyricsInput');
-        const hueSlider = document.getElementById('hueSlider');
-        const sensSlider = document.getElementById('sensSlider');
-        const playBtn = document.getElementById('playBtn');
-        const recordBtn = document.getElementById('recordBtn');
-        const audioElement = document.getElementById('audioElement');
-        const canvas = document.getElementById('visualizerCanvas');
-        const ctx = canvas.getContext('2d');
-        const logoFrame = document.getElementById('logoFrame');
-        const logoImage = document.getElementById('logoImage');
+        <!-- Bottom Spotify Dash: Seek and State Layout -->
+        <div id="playerDashboard">
+            <div class="timelineContainer">
+                <span class="timeLabel" id="timeCurrent">0:00</span>
+                <input type="range" id="scrubBar" class="scrubBar" min="0" max="100" value="0" step="0.1" disabled>
+                <span class="timeLabel right" id="timeTotal">0:00</span>
+            </div>
+            <div class="playerControls">
