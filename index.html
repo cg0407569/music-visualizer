@@ -1,139 +1,4135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuraVibe Studio Pro</title>
-    <script src="https://tailwindcss.com"></script>
-    <link href="https://cloudflare.com" rel="stylesheet">
-    <style>
-        @import url('https://googleapis.com');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; }
-        .glass-panel { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .gradient-text { background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        canvas { background-color: #000; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-    </style>
-</head>
-<body class="text-gray-100 min-h-screen flex flex-col">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VYBE — Music Visualizer Studio</title>
 
-    <!-- Header Navigation -->
-    <header class="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-gray-800">
-        <div class="flex items-center space-x-3">
-            <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <i class="fa-solid fa-wand-magic-sparkles text-xl text-white"></i>
-            </div>
+<style>
+:root {
+    --bg: #07080d;
+    --panel: #0d1018;
+    --panel2: #111522;
+    --border: rgba(255,255,255,.09);
+    --text: #f4f7ff;
+    --muted: #8d95a9;
+    --accent: #7c5cff;
+    --accent2: #00e5ff;
+    --danger: #ff477e;
+    --success: #3dffad;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+body {
+    overflow: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    border-right: 1px solid var(--border);
+    background:
+        radial-gradient(circle at top left, rgba(124,92,255,.13), transparent 35%),
+        #090b11;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 14px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 5px 10px 25px;
+}
+
+.logo-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #7c5cff, #00e5ff);
+    box-shadow: 0 0 25px rgba(124,92,255,.45);
+    position: relative;
+}
+
+.logo-mark::after {
+    content: "";
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: white;
+    top: 11px;
+    left: 11px;
+}
+
+.logo span {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+}
+
+.logo small {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 1.7px;
+    margin-top: 1px;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nav button {
+    border: 0;
+    color: var(--muted);
+    background: transparent;
+    padding: 12px 13px;
+    border-radius: 11px;
+    text-align: left;
+    transition: .2s;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.nav button:hover {
+    background: rgba(255,255,255,.05);
+    color: white;
+}
+
+.nav button.active {
+    color: white;
+    background: linear-gradient(
+        90deg,
+        rgba(124,92,255,.18),
+        rgba(124,92,255,.04)
+    );
+    box-shadow: inset 2px 0 var(--accent);
+}
+
+.nav-icon {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding: 10px;
+}
+
+.pro-card {
+    border: 1px solid rgba(124,92,255,.2);
+    border-radius: 15px;
+    padding: 14px;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(124,92,255,.12),
+            rgba(0,229,255,.03)
+        );
+}
+
+.pro-card strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.pro-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* MAIN */
+
+.main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.topbar {
+    height: 70px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    background: rgba(7,8,13,.85);
+    backdrop-filter: blur(15px);
+}
+
+.top-title h1 {
+    font-size: 17px;
+    margin: 0;
+}
+
+.top-title p {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.top-actions {
+    display: flex;
+    gap: 9px;
+}
+
+.btn {
+    border: 1px solid var(--border);
+    color: white;
+    background: rgba(255,255,255,.04);
+    padding: 9px 14px;
+    border-radius: 9px;
+    transition: .2s;
+}
+
+.btn:hover {
+    background: rgba(255,255,255,.08);
+}
+
+.btn.primary {
+    border: 0;
+    background: linear-gradient(135deg, #7c5cff, #6044e9);
+    box-shadow: 0 7px 25px rgba(124,92,255,.22);
+}
+
+.btn.success {
+    border: 0;
+    background: linear-gradient(135deg, #16d88d, #00a66a);
+}
+
+.content {
+    flex: 1;
+    overflow: auto;
+    padding: 25px;
+}
+
+.tab {
+    display: none;
+}
+
+.tab.active {
+    display: block;
+}
+
+/* DASHBOARD */
+
+.hero {
+    border: 1px solid var(--border);
+    background:
+        radial-gradient(
+            circle at 85% 10%,
+            rgba(0,229,255,.11),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 15% 90%,
+            rgba(124,92,255,.14),
+            transparent 30%
+        ),
+        #0b0e16;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.hero h2 {
+    margin: 0;
+    font-size: clamp(25px, 4vw, 40px);
+    letter-spacing: -1.5px;
+}
+
+.hero p {
+    color: var(--muted);
+    max-width: 650px;
+    line-height: 1.6;
+}
+
+.drop-zone {
+    border: 1px dashed rgba(255,255,255,.18);
+    background: rgba(255,255,255,.025);
+    padding: 28px;
+    border-radius: 15px;
+    text-align: center;
+    transition: .2s;
+}
+
+.drop-zone.drag {
+    border-color: var(--accent2);
+    background: rgba(0,229,255,.06);
+}
+
+.drop-zone h3 {
+    margin: 5px 0;
+}
+
+.drop-zone p {
+    margin: 5px 0 18px;
+    font-size: 13px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* GRID */
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.card {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 17px;
+    padding: 18px;
+}
+
+.card h3 {
+    margin: 0 0 5px;
+    font-size: 14px;
+}
+
+.card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.card .big {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 10px 0 2px;
+}
+
+/* STUDIO */
+
+.studio-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 18px;
+}
+
+.preview-card {
+    background: #030409;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+}
+
+.preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.preview-header span {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.canvas-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    background:
+        repeating-conic-gradient(
+            #080a10 0% 25%,
+            #0c0f17 0% 50%
+        ) 50% / 18px 18px;
+    border-radius: 12px;
+    padding: 12px;
+    overflow: hidden;
+}
+
+#visualizer {
+    width: 100%;
+    max-height: 67vh;
+    object-fit: contain;
+    background: black;
+    border-radius: 7px;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    max-height: calc(100vh - 125px);
+    overflow: auto;
+    padding-right: 3px;
+}
+
+.control-card {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 15px;
+    padding: 15px;
+}
+
+.control-card h3 {
+    margin: 0 0 12px;
+    font-size: 13px;
+}
+
+.field {
+    margin-bottom: 13px;
+}
+
+.field:last-child {
+    margin-bottom: 0;
+}
+
+.field label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 7px;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%;
+    color: white;
+    background: #080b12;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 10px;
+    outline: none;
+}
+
+textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: rgba(124,92,255,.6);
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+}
+
+input[type="color"] {
+    width: 100%;
+    height: 38px;
+    border: 1px solid var(--border);
+    background: #080b12;
+    border-radius: 8px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #cbd1df;
+    margin-top: 9px;
+}
+
+.checkbox input {
+    accent-color: var(--accent);
+}
+
+/* LYRICS */
+
+.lyrics-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.lyrics-box,
+.assistant {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 18px;
+    padding: 20px;
+}
+
+.lyrics-box h2,
+.assistant h2 {
+    margin-top: 0;
+}
+
+.lyrics-help {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.lyrics-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+
+.status {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 8px;
+}
+
+/* TEMPLATES */
+
+.templates {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.template {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.template:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124,92,255,.5);
+}
+
+.template-thumb {
+    height: 150px;
+    position: relative;
+    overflow: hidden;
+}
+
+.template-thumb.neon {
+    background:
+        radial-gradient(circle, #ff00cc, transparent 25%),
+        linear-gradient(135deg,#09002a,#001d2e);
+}
+
+.template-thumb.cyber {
+    background:
+        linear-gradient(135deg,#06131e,#02030b);
+}
+
+.template-thumb.sunset {
+    background:
+        linear-gradient(
+            135deg,
+            #ff4d6d,
+            #ff9f1c,
+            #5420c9
+        );
+}
+
+.template-thumb.aurora {
+    background:
+        radial-gradient(circle at 30% 30%, #00ffc8, transparent 25%),
+        radial-gradient(circle at 70% 70%, #743dff, transparent 25%),
+        #020b12;
+}
+
+.template-thumb.minimal {
+    background: #111;
+}
+
+.template-thumb.pulse {
+    background:
+        radial-gradient(circle,#00e5ff,transparent 10%),
+        #020b12;
+}
+
+.template-info {
+    padding: 13px;
+}
+
+.template-info strong {
+    display: block;
+}
+
+.template-info span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* SOCIAL */
+
+.social-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+}
+
+.social-card {
+    padding: 20px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 17px;
+}
+
+.social-card h3 {
+    margin-top: 0;
+}
+
+/* ASSISTANT */
+
+.chat {
+    height: 430px;
+    overflow: auto;
+    background: #080a10;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.message {
+    max-width: 85%;
+    padding: 10px 12px;
+    border-radius: 11px;
+    margin: 7px 0;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.message.ai {
+    background: #121724;
+    color: #dbe0ef;
+}
+
+.message.user {
+    margin-left: auto;
+    background: #6044e9;
+    color: white;
+}
+
+.chat-input {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-input input {
+    flex: 1;
+}
+
+/* TOAST */
+
+.toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #171b27;
+    border: 1px solid var(--border);
+    box-shadow: 0 15px 40px rgba(0,0,0,.4);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: .25s;
+    z-index: 999;
+    font-size: 12px;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1100px) {
+    .studio-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .controls {
+        max-height: none;
+    }
+
+    .grid,
+    .templates,
+    .social-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+
+@media(max-width:800px) {
+    body {
+        overflow: auto;
+    }
+
+    .app {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 10px;
+    }
+
+    .logo {
+        padding: 5px 10px 10px;
+    }
+
+    .nav {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .nav button {
+        flex-shrink: 0;
+        font-size: 11px;
+    }
+
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .content {
+        padding: 14px;
+    }
+
+    .topbar {
+        padding: 0 14px;
+    }
+
+    .top-actions .btn:not(.primary) {
+        display: none;
+    }
+
+    .lyrics-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .grid,
+    .templates,
+    .social-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-mark"></div>
             <div>
-                <h1 class="text-xl font-bold tracking-tight">AuraVibe <span class="text-indigo-400 font-medium">Studio</span></h1>
-                <p class="text-xs text-gray-400">Next-Gen Video Synthesis</p>
+                <span>VYBE</span>
+                <small>MUSIC VISUAL STUDIO</small>
             </div>
         </div>
 
-        <nav class="flex space-x-2 bg-gray-900/60 p-1 rounded-xl border border-gray-800/80">
-            <button onclick="switchTab('studio')" id="btn-studio" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-indigo-600 text-white shadow-md">
-                <i class="fa-solid fa-compact-disc mr-2"></i>Aesthetic Engine
+        <nav class="nav">
+            <button class="active" data-tab="home">
+                <span class="nav-icon">⌂</span>
+                Dashboard
             </button>
-            <button onclick="switchTab('custom')" id="btn-custom" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800">
-                <i class="fa-solid fa-sliders mr-2"></i>Custom Lab
+
+            <button data-tab="studio">
+                <span class="nav-icon">◈</span>
+                Visual Studio
             </button>
-            <button onclick="switchTab('presets')" id="btn-presets" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800">
-                <i class="fa-solid fa-photo-film mr-2"></i>Social Formats
+
+            <button data-tab="lyrics">
+                <span class="nav-icon">♫</span>
+                Lyrics
+            </button>
+
+            <button data-tab="templates">
+                <span class="nav-icon">✦</span>
+                Templates
+            </button>
+
+            <button data-tab="social">
+                <span class="nav-icon">▣</span>
+                Social
+            </button>
+
+            <button data-tab="assistant">
+                <span class="nav-icon">✧</span>
+                AI Assistant
             </button>
         </nav>
-    </header>
 
-    <!-- Main Workspace Dashboard -->
-    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1600px] w-full mx-auto">
-        
-        <!-- Controls Column (Left) -->
-        <div class="lg:col-span-4 flex flex-col space-y-6">
-            
-            <!-- Asset Intake Section -->
-            <div class="glass-panel rounded-2xl p-5 space-y-4">
-                <h3 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">1. Media & Format Core</h3>
-                
-                <div>
-                    <label class="block text-xs text-gray-400 font-medium mb-2">AUDIO SOURCE</label>
-                    <div class="relative flex items-center justify-center border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-xl p-4 transition-colors group cursor-pointer">
-                        <input type="file" id="audio-input" accept="audio/*" class="absolute inset-0 opacity-0 cursor-pointer">
-                        <div class="text-center group-hover:scale-105 transition-transform" id="upload-placeholder">
-                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-indigo-400 mb-2"></i>
-                            <p class="text-sm font-medium text-gray-300">Drop audio track or browse</p>
-                            <p class="text-xs text-gray-500 mt-1">MP3, WAV, M4A supported</p>
-                        </div>
-                    </div>
-                    <div id="audio-meta" class="hidden flex items-center justify-between bg-gray-900/60 p-3 rounded-xl mt-3 border border-gray-800">
-                        <div class="flex items-center space-x-2 truncate">
-                            <i class="fa-solid fa-music text-indigo-400"></i>
-                            <span id="audio-filename" class="text-xs font-medium truncate text-gray-300">track.mp3</span>
-                        </div>
-                        <button onclick="togglePlayback()" id="play-btn" class="h-8 w-8 rounded-full bg-indigo-500 hover:bg-indigo-600 flex items-center justify-center text-white transition-colors">
-                            <i class="fa-solid fa-play text-xs pl-0.5"></i>
-                        </button>
-                    </div>
-                </div>
+        <div class="sidebar-bottom">
+            <div class="pro-card">
+                <strong>Creator Studio</strong>
+                <p>
+                    Build music visuals, lyric videos and social content
+                    directly in your browser.
+                </p>
+            </div>
+        </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs text-gray-400 font-medium mb-1.5">ASPECT RATIO</label>
-                        <select id="aspect-ratio" onchange="adjustCanvasRatio()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
-                            <option value="9:16">9:16 (TikTok/Reels)</option>
-                            <option value="16:9">16:9 (YouTube/Widescreen)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 font-medium mb-1.5">OUTPUT RENDER</label>
-                        <select id="render-res" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
-                            <option value="720">720p (Fast)</option>
-                            <option value="1080">1080p (HQ Production)</option>
-                        </select>
-                    </div>
-                </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="topbar">
+            <div class="top-title">
+                <h1 id="pageTitle">Dashboard</h1>
+                <p>Turn your music into visual content.</p>
             </div>
 
-            <!-- Tabbed Workspaces -->
-            <div class="glass-panel rounded-2xl p-5 flex-1 flex flex-col min-h-[400px]">
-                
-                <!-- TAB 1: MODERN/FUTURISTIC ENGINE -->
-                <div id="tab-studio" class="tab-content active space-y-4">
-                    <h3 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">2. Generative Aesthetics</h3>
-                    <p class="text-xs text-gray-400">Select an algorithmic style vector to instantly compute the baseline scene.</p>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="setTheme('cyberpunk')" class="flex flex-col items-center justify-center p-4 bg-gray-900/80 border border-gray-800 hover:border-pink-500 rounded-xl transition-all group">
-                            <i class="fa-solid fa-bolt text-pink-500 text-lg mb-2 group-hover:scale-110 transition-transform"></i>
-                            <span class="text-xs font-semibold">Cyberpunk Aura</span>
+            <div class="top-actions">
+                <button class="btn" onclick="newProject()">New Project</button>
+                <button class="btn primary" onclick="exportVideo()">
+                    Export Video
+                </button>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <!-- HOME -->
+            <section id="home" class="tab active">
+
+                <div class="hero">
+
+                    <h2>Create visuals that move with your music.</h2>
+
+                    <p>
+                        Upload a track, choose a visual style, add lyrics,
+                        customize the animation and export a social-ready
+                        music video.
+                    </p>
+
+                    <div
+                        class="drop-zone"
+                        id="dropZone"
+                    >
+                        <div style="font-size:32px;">♫</div>
+
+                        <h3>Drop your audio here</h3>
+
+                        <p>
+                            MP3, WAV, OGG and other browser-supported
+                            audio formats
+                        </p>
+
+                        <button
+                            class="btn primary"
+                            onclick="document.getElementById('audioFile').click()"
+                        >
+                            Choose Audio
                         </button>
-                        <button onclick="setTheme('neon-minimal')" class="flex flex-col items-center justify-center p-4 bg-gray-900/80 border border-gray-800 hover:border-indigo-500 rounded-xl transition-all group">
-                            <i class="fa-solid fa-wave-square text-indigo-400 text-lg mb-2 group-hover:scale-110 transition-transform"></i>
-                            <span class="text-xs font-semibold">Neon Minimal</span>
-                        </button>
-                        <button onclick="setTheme('liquid-gold')" class="flex flex-col items-center justify-center p-4 bg-gray-900/80 border border-gray-800 hover:border-amber-500 rounded-xl transition-all group">
-                            <i class="fa-solid fa-circle-nodes text-amber-500 text-lg mb-2 group-hover:scale-110 transition-transform"></i>
-                            <span class="text-xs font-semibold">Liquid Gold Flow</span>
-                        </button>
-                        <button onclick="setTheme('hyperdrive')" class="flex flex-col items-center justify-center p-4 bg-gray-900/80 border border-gray-800 hover:border-emerald-500 rounded-xl transition-all group">
-                            <i class="fa-solid fa-startext-emerald-400 text-lg mb-2 group-hover:scale-110 transition-transform"></i>
-                            <span class="text-xs font-semibold">Hyperdrive Grid</span>
-                        </button>
+
+                        <input
+                            id="audioFile"
+                            type="file"
+                            accept="audio/*"
+                            class="hidden"
+                        >
+
+                        <div
+                            id="fileName"
+                            class="status"
+                        >
+                            No audio loaded
+                        </div>
                     </div>
+
                 </div>
 
-                <!-- TAB 2: FREE CREATION LAB -->
-                <div id="tab-custom" class="tab-content space-y-4">
-                    <h3 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">2. Granular Property Lab</h3>
-                    
-                    <div class="space-y-3.5">
-                        <div>
-                            <div class="flex justify-between text-xs mb-1.5">
-                                <span class="text-gray-400 font-medium">PARTICLE QUANTITY</span>
-                                <span id="val-particles" class="text-indigo-400 font-mono">150</span>
-                            </div>
-                            <input type="range" id="param-particles" min="50" max="400" value="150" class="w-full accent-indigo-500 bg-gray-800 h-1 rounded-lg appearance-none">
+                <div class="grid">
+
+                    <div class="card">
+                        <h3>Audio</h3>
+                        <div class="big" id="audioStatus">—</div>
+                        <p>Your uploaded music track.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Canvas</h3>
+                        <div class="big" id="canvasStatus">9:16</div>
+                        <p>Current export format.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Visual Style</h3>
+                        <div class="big" id="styleStatus">Neon</div>
+                        <p>Current visual preset.</p>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- STUDIO -->
+            <section id="studio" class="tab">
+
+                <div class="studio-layout">
+
+                    <div class="preview-card">
+
+                        <div class="preview-header">
+                            <strong>Live Preview</strong>
+                            <span id="previewDimensions">
+                                1080 × 1920
+                            </span>
                         </div>
 
-                        <div>
-                            <div class="flex justify-between text-xs mb-1.5">
-                                <span class="text-gray-400 font-medium">BASS SENSITIVITY SCALE</span>
-                                <span id="val-bass" class="text-indigo-400 font-mono">1.5</span>
+                        <div class="canvas-wrap">
+                            <canvas
+                                id="visualizer"
+                                width="1080"
+                                height="1920"
+                            ></canvas>
+                        </div>
+
+                    </div>
+
+                    <div class="controls">
+
+                        <div class="control-card">
+
+                            <h3>Project</h3>
+
+                            <div class="field">
+                                <label>Title</label>
+                                <input
+                                    id="titleInput"
+                                    type="text"
+                                    value="My New Song"
+                                    placeholder="Song title"
+                                >
+                            </div>
+
+                            <div class="field">
+                                <label>Artist</label>
+                                <input
+                                    id="artistInput"
+                                    type="text"
+                                    value="Artist"
+                                    placeholder="Artist name"
+                                >
+                            </div>
+
+                        </div>
+
+                        <div class="control-card">
+
+                            <h3>Format</h3>
+
+                            <div class="row">
+
+                                <button
+                                    class="btn primary"
+                                    id="verticalBtn"
+                                    onclick="setRatio('vertical')"
+                                >
+                                    9:16
+                                </button>
+
+                                <button
+                                    class="btn"
+                                    id="landscapeBtn"
+                                    onclick="setRatio('landscape')"
+                                >
+                                    16:9
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div class="control-card">
+
+                            <h3>Visual Style</h3>
+
+                            <div class="field">
+                                <select id="styleSelect">
+                                    <option value="neon">
+                                        Neon Pulse
+                                    </option>
+                                    <option value="futuristic">
+                                        Futuristic Grid
+                                    </option>
+                                    <option value="aurora">
+                                        Aurora
+                                    </option>
+                                    <option value="sunset">
+                                        Sunset Energy
+                                    </option>
+                                    <option value="minimal">
+                                        Minimal
+                                    </option>
+                                    <option value="cyber">
+                                        Cyber
+                                    </option>
+                                    <option value="particles">
+                                        Particle Universe
+                                    </option>
+                                    <option value="custom">
+                                        Custom
+                                    </option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="control-card">
+
+                            <h3>Colors</h3>
+
+                            <div class="row">
+
+                                <div class="field">
+                                    <label>Primary</label>
+                                    <input
+                                        id="color1"
+                                        type="color"
+                                        value="#7c5cff"
+                                    >
+                                </div>
+
+                                <div class="field">
+                                    <label>Secondary</label>
+                                    <input
+                                        id="color2"
+                                        type="color"
+                                        value="#00e5ff"
+                                    >
+                                </div>
+
+                            </div>
+
+                            <div class="field">
+                                <label>
+                                    Background
+                                </label>
+
+                                <input
+                                    id="backgroundColor"
+                                    type="color"
+                                    value="#030409"
+                                >
+                            </div>
+
+                        </div>
+
+                        <div class="control-card">
+
+                            <h3>Animation</h3>
+
+                            <div class="field">
+                                <label>
+                                    Intensity
+                                    <span id="intensityValue">
+                                        70
+                                    </span>
+                                </label>
+
+                                <input
+                                    id="intensity"
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value="70"
+                                >
+                            </div>
+
+                            <div class="field">
+                                <label>
+                                    Particle Count
+                                    <span id="particleValue">
+                                        100
+                                    </span>
+                                </label>
+
+                                <input
+                                    id="particles"
+                                    type="range"
+                                    min="10"
+                                    max="300"
+                                    value="100"
+                                >
+                            </div>
+
+                            <div class="field">
+                                <label>
+                                    Glow
+                                    <span id="glowValue">
+                                        60
+                                    </span>
+                                </label>
+
+                                <input
+                                    id="glow"
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value="60"
+                                >
+                            </div>
+
+                        </div>
+
+                        <div class="control-card">
+
+                            <h3>Lyrics Display</h3>
+
+                            <label class="checkbox">
+                                <input
+                                    id="showLyrics"
+                                    type="checkbox"
+                                    checked
+                                >
+                                Show lyrics
+                            </label>
+
+                            <label class="checkbox">
+                                <input
+                                    id="showTitle"
+                                    type="checkbox"
+                                    checked
+                                >
+                                Show title
+                            </label>
+
+                            <label class="checkbox">
+                                <input
+                                    id="showVisualizer"
+                                    type="checkbox"
+                                    checked
+                                >
+                                Show audio visualizer
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- LYRICS -->
+            <section id="lyrics" class="tab">
+
+                <div class="lyrics-layout">
+
+                    <div class="lyrics-box">
+
+                        <h2>Lyrics</h2>
+
+                        <p class="lyrics-help">
+                            Paste lyrics manually or use your browser's
+                            speech recognition to transcribe vocals.
+                            Speech recognition availability depends on
+                            your browser and device.
+                        </p>
+
+                        <div class="lyrics-actions">
+
+                            <button
+                                class="btn primary"
+                                onclick="startSpeechRecognition()"
+                            >
+                                🎙 Start Transcription
+                            </button>
+
+                            <button
+                                class="btn"
+                                onclick="stopSpeechRecognition()"
+                            >
+                                Stop
+                            </button>
+
+                            <button
+                                class="btn"
+                                onclick="clearLyrics()"
+                            >
+                                Clear
+                            </button>
+
+                        </div>
+
+                        <textarea
+                            id="lyricsInput"
+                            placeholder="Your lyrics will appear here..."
+                        ></textarea>
+
+                        <div
+                            id="speechStatus"
+                            class="status"
+                        >
+                            Speech recognition idle.
+                        </div>
+
+                    </div>
+
+                    <div class="lyrics-box">
+
+                        <h2>Lyric Settings</h2>
+
+                        <div class="field">
+
+                            <label>Position</label>
+
+                            <select id="lyricsPosition">
+
+                                <option value="bottom">
+                                    Bottom
+                                </option>
+
+                                <option value="center">
+                                    Center
+                                </option>
+
+                                <option value="top">
+                                    Top
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="field">
+
+                            <label>
+                                Font Size
+                                <span id="fontValue">42</span>
+                            </label>
+
+                            <input
+                                id="fontSize"
+                                type="range"
+                                min="18"
+                                max="100"
+                                value="42"
+                            >
+
+                        </div>
+
+                        <div class="field">
+
+                            <label>
+                                Text Color
+                            </label>
+
+                            <input
+                                id="lyricsColor"
+                                type="color"
+                                value="#ffffff"
+                            >
+
+                        </div>
+
+                        <div class="field">
+
+                            <label>
+                                Accent
+                            </label>
+
+                            <input
+                                id="lyricsAccent"
+                                type="color"
+                                value="#7c5cff"
+                            >
+
+                        </div>
+
+                        <label class="checkbox">
+                            <input
+                                id="lyricsShadow"
+                                type="checkbox"
+                                checked
+                            >
+                            Text shadow
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- TEMPLATES -->
+            <section id="templates" class="tab">
+
+                <h2>Visual Templates</h2>
+
+                <p style="color:var(--muted);font-size:13px;">
+                    Choose a starting point, then customize it inside
+                    the Visual Studio.
+                </p>
+
+                <div class="templates">
+
+                    <div
+                        class="template"
+                        onclick="applyTemplate('neon')"
+                    >
+                        <div class="template-thumb neon"></div>
+                        <div class="template-info">
+                            <strong>Neon Pulse</strong>
+                            <span>Electric music visualizer</span>
+                        </div>
+                    </div>
+
+                    <div
+                        class="template"
+                        onclick="applyTemplate('futuristic')"
+                    >
+                        <div class="template-thumb cyber"></div>
+                        <div class="template-info">
+                            <strong>Future Grid</strong>
+                            <span>Cyber interface aesthetic</span>
+                        </div>
+                    </div>
+
+                    <div
+                        class="template"
+                        onclick="applyTemplate('sunset')"
+                    >
+                        <div class="template-thumb sunset"></div>
+                        <div class="template-info">
+                            <strong>Sunset Energy</strong>
+                            <span>Warm cinematic gradients</span>
+                        </div>
+                    </div>
+
+                    <div
+                        class="template"
+                        onclick="applyTemplate('aurora')"
+                    >
+                        <div class="template-thumb aurora"></div>
+                        <div class="template-info">
+                            <strong>Aurora</strong>
+                            <span>Atmospheric glowing waves</span>
+                        </div>
+                    </div>
+
+                    <div
+                        class="template"
+                        onclick="applyTemplate('minimal')"
+                    >
+                        <div class="template-thumb minimal"></div>
+                        <div class="template-info">
+                            <strong>Minimal</strong>
+                            <span>Clean and modern</span>
+                        </div>
+                    </div>
+
+                    <div
+                        class="template"
+                        onclick="applyTemplate('particles')"
+                    >
+                        <div class="template-thumb pulse"></div>
+                        <div class="template-info">
+                            <strong>Particle Universe</strong>
+                            <span>Deep space particle field</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- SOCIAL -->
+            <section id="social" class="tab">
+
+                <h2>Social Media</h2>
+
+                <p style="color:var(--muted);font-size:13px;">
+                    Quick presets for different platforms.
+                </p>
+
+                <div class="social-grid">
+
+                    <div class="social-card">
+                        <h3>▣ TikTok</h3>
+                        <p>
+                            Vertical 9:16 video optimized for short-form
+                            music content.
+                        </p>
+
+                        <button
+                            class="btn primary"
+                            style="margin-top:15px;"
+                            onclick="setRatio('vertical')"
+                        >
+                            Use 9:16
+                        </button>
+                    </div>
+
+                    <div class="social-card">
+                        <h3>▶ YouTube</h3>
+                        <p>
+                            Landscape 16:9 format for music videos,
+                            visualizers and uploads.
+                        </p>
+
+                        <button
+                            class="btn primary"
+                            style="margin-top:15px;"
+                            onclick="setRatio('landscape')"
+                        >
+                            Use 16:9
+                        </button>
+                    </div>
+
+                    <div class="social-card">
+                        <h3>◎ Instagram Reels</h3>
+                        <p>
+                            Vertical short-form content with lyric-safe
+                            positioning.
+                        </p>
+
+                        <button
+                            class="btn primary"
+                            style="margin-top:15px;"
+                            onclick="setRatio('vertical')"
+                        >
+                            Use 9:16
+                        </button>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ASSISTANT -->
+            <section id="assistant" class="tab">
+
+                <div class="assistant">
+
+                    <h2>AI Creative Assistant</h2>
+
+                    <p class="lyrics-help">
+                        This built-in assistant can help you develop
+                        visual ideas, captions, titles and creative
+                        directions without requiring an external API.
+                    </p>
+
+                    <div
+                        id="chat"
+                        class="chat"
+                    >
+                        <div class="message ai">
+                            Hey! I'm your VYBE creative assistant.
+                            Tell me what kind of music visual you're
+                            making and I'll suggest a visual direction.
+                        </div>
+                    </div>
+
+                    <div class="chat-input">
+
+                        <input
+                            id="chatInput"
+                            type="text"
+                            placeholder="Ask for a visual idea..."
+                            onkeydown="if(event.key==='Enter') sendMessage()"
+                        >
+
+                        <button
+                            class="btn primary"
+                            onclick="sendMessage()"
+                        >
+                            Send
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<audio
+    id="audio"
+    crossorigin="anonymous"
+></audio>
+
+<script>
+
+/* ============================================================
+   VYBE MUSIC VISUAL STUDIO
+   Single-file browser music visualizer
+   ============================================================ */
+
+/* -------------------------
+   GLOBAL STATE
+------------------------- */
+
+const state = {
+
+    ratio: "vertical",
+
+    width: 1080,
+
+    height: 1920,
+
+    style: "neon",
+
+    primary: "#7c5cff",
+
+    secondary: "#00e5ff",
+
+    background: "#030409",
+
+    intensity: 70,
+
+    particles: 100,
+
+    glow: 60,
+
+    showLyrics: true,
+
+    showTitle: true,
+
+    showVisualizer: true,
+
+    fontSize: 42,
+
+    lyricsPosition: "bottom",
+
+    lyricsColor: "#ffffff",
+
+    lyricsAccent: "#7c5cff",
+
+    audioLoaded: false,
+
+    recording: false
+
+};
+
+
+/* -------------------------
+   DOM
+------------------------- */
+
+const canvas = document.getElementById("visualizer");
+
+const ctx = canvas.getContext("2d");
+
+const audio = document.getElementById("audio");
+
+let audioContext = null;
+
+let analyser = null;
+
+let sourceNode = null;
+
+let frequencyData = null;
+
+let animationFrame = null;
+
+let mediaRecorder = null;
+
+let recordedChunks = [];
+
+let recognition = null;
+
+let recognitionRunning = false;
+
+let particles = [];
+
+
+/* -------------------------
+   NAVIGATION
+------------------------- */
+
+const navButtons = document.querySelectorAll(".nav button");
+
+const tabs = document.querySelectorAll(".tab");
+
+const pageTitle = document.getElementById("pageTitle");
+
+navButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        navButtons.forEach(b =>
+            b.classList.remove("active")
+        );
+
+        button.classList.add("active");
+
+        tabs.forEach(tab =>
+            tab.classList.remove("active")
+        );
+
+        const target =
+            document.getElementById(
+                button.dataset.tab
+            );
+
+        target.classList.add("active");
+
+        pageTitle.textContent =
+            button.textContent.trim();
+
+    });
+
+});
+
+
+/* -------------------------
+   AUDIO UPLOAD
+------------------------- */
+
+const audioFile =
+    document.getElementById("audioFile");
+
+audioFile.addEventListener("change", e => {
+
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    loadAudio(file);
+
+});
+
+
+async function loadAudio(file) {
+
+    const url = URL.createObjectURL(file);
+
+    audio.src = url;
+
+    audio.load();
+
+    state.audioLoaded = true;
+
+    document.getElementById("fileName").textContent =
+        file.name;
+
+    document.getElementById("audioStatus").textContent =
+        file.name.length > 22
+            ? file.name.substring(0,22) + "..."
+            : file.name;
+
+    setupAudio();
+
+    showToast("Audio loaded successfully.");
+
+    switchTab("studio");
+
+}
+
+
+/* -------------------------
+   DRAG AND DROP
+------------------------- */
+
+const dropZone =
+    document.getElementById("dropZone");
+
+["dragenter","dragover"].forEach(eventName => {
+
+    dropZone.addEventListener(
+        eventName,
+        e => {
+            e.preventDefault();
+            dropZone.classList.add("drag");
+        }
+    );
+
+});
+
+["dragleave","drop"].forEach(eventName => {
+
+    dropZone.addEventListener(
+        eventName,
+        e => {
+            e.preventDefault();
+            dropZone.classList.remove("drag");
+        }
+    );
+
+});
+
+dropZone.addEventListener("drop", e => {
+
+    const file = e.dataTransfer.files[0];
+
+    if (
+        file &&
+        file.type.startsWith("audio/")
+    ) {
+        loadAudio(file);
+    }
+
+});
+
+
+/* -------------------------
+   AUDIO ENGINE
+------------------------- */
+
+function setupAudio() {
+
+    try {
+
+        if (!audioContext) {
+
+            audioContext =
+                new (
+                    window.AudioContext ||
+                    window.webkitAudioContext
+                )();
+
+            analyser =
+                audioContext.createAnalyser();
+
+            analyser.fftSize = 512;
+
+            analyser.smoothingTimeConstant = .78;
+
+            frequencyData =
+                new Uint8Array(
+                    analyser.frequencyBinCount
+                );
+
+            sourceNode =
+                audioContext.createMediaElementSource(
+                    audio
+                );
+
+            sourceNode.connect(analyser);
+
+            analyser.connect(
+                audioContext.destination
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* -------------------------
+   PLAY / PAUSE
+------------------------- */
+
+audio.addEventListener("play", () => {
+
+    if (
+        audioContext &&
+        audioContext.state === "suspended"
+    ) {
+        audioContext.resume();
+    }
+
+});
+
+audio.addEventListener("ended", () => {
+
+    state.recording = false;
+
+});
+
+
+/* -------------------------
+   CANVAS RATIO
+------------------------- */
+
+function setRatio(type) {
+
+    state.ratio = type;
+
+    if (type === "vertical") {
+
+        state.width = 1080;
+        state.height = 1920;
+
+        document.getElementById(
+            "verticalBtn"
+        ).classList.add("primary");
+
+        document.getElementById(
+            "landscapeBtn"
+        ).classList.remove("primary");
+
+    } else {
+
+        state.width = 1920;
+        state.height = 1080;
+
+        document.getElementById(
+            "landscapeBtn"
+        ).classList.add("primary");
+
+        document.getElementById(
+            "verticalBtn"
+        ).classList.remove("primary");
+
+    }
+
+    canvas.width = state.width;
+
+    canvas.height = state.height;
+
+    document.getElementById(
+        "canvasStatus"
+    ).textContent =
+        type === "vertical"
+            ? "9:16"
+            : "16:9";
+
+    document.getElementById(
+        "previewDimensions"
+    ).textContent =
+        `${state.width} × ${state.height}`;
+
+}
+
+
+/* -------------------------
+   STYLE
+------------------------- */
+
+document.getElementById(
+    "styleSelect"
+).addEventListener("change", e => {
+
+    state.style = e.target.value;
+
+    document.getElementById(
+        "styleStatus"
+    ).textContent =
+        formatName(state.style);
+
+});
+
+
+function formatName(name) {
+
+    return name
+        .replace("-", " ")
+        .replace(/\b\w/g, c => c.toUpperCase());
+
+}
+
+
+/* -------------------------
+   COLOR / CONTROL EVENTS
+------------------------- */
+
+document.getElementById("color1")
+    .addEventListener("input", e => {
+        state.primary = e.target.value;
+    });
+
+document.getElementById("color2")
+    .addEventListener("input", e => {
+        state.secondary = e.target.value;
+    });
+
+document.getElementById("backgroundColor")
+    .addEventListener("input", e => {
+        state.background = e.target.value;
+    });
+
+document.getElementById("intensity")
+    .addEventListener("input", e => {
+
+        state.intensity = +e.target.value;
+
+        document.getElementById(
+            "intensityValue"
+        ).textContent = state.intensity;
+
+    });
+
+document.getElementById("particles")
+    .addEventListener("input", e => {
+
+        state.particles = +e.target.value;
+
+        document.getElementById(
+            "particleValue"
+        ).textContent = state.particles;
+
+        initializeParticles();
+
+    });
+
+document.getElementById("glow")
+    .addEventListener("input", e => {
+
+        state.glow = +e.target.value;
+
+        document.getElementById(
+            "glowValue"
+        ).textContent = state.glow;
+
+    });
+
+document.getElementById("showLyrics")
+    .addEventListener("change", e => {
+        state.showLyrics = e.target.checked;
+    });
+
+document.getElementById("showTitle")
+    .addEventListener("change", e => {
+        state.showTitle = e.target.checked;
+    });
+
+document.getElementById("showVisualizer")
+    .addEventListener("change", e => {
+        state.showVisualizer = e.target.checked;
+    });
+
+document.getElementById("fontSize")
+    .addEventListener("input", e => {
+
+        state.fontSize = +e.target.value;
+
+        document.getElementById(
+            "fontValue"
+        ).textContent = state.fontSize;
+
+    });
+
+document.getElementById("lyricsPosition")
+    .addEventListener("change", e => {
+        state.lyricsPosition = e.target.value;
+    });
+
+document.getElementById("lyricsColor")
+    .addEventListener("input", e => {
+        state.lyricsColor = e.target.value;
+    });
+
+document.getElementById("lyricsAccent")
+    .addEventListener("input", e => {
+        state.lyricsAccent = e.target.value;
+    });
+
+
+/* -------------------------
+   PARTICLES
+------------------------- */
+
+function initializeParticles() {
+
+    particles = [];
+
+    for (
+        let i = 0;
+        i < state.particles;
+        i++
+    ) {
+
+        particles.push({
+
+            x: Math.random(),
+
+            y: Math.random(),
+
+            size:
+                Math.random() * 5 + 1,
+
+            speed:
+                Math.random() * .0008 + .0002,
+
+            phase:
+                Math.random() * Math.PI * 2,
+
+            opacity:
+                Math.random() * .6 + .15
+
+        });
+
+    }
+
+}
+
+initializeParticles();
+
+
+/* -------------------------
+   AUDIO LEVEL
+------------------------- */
+
+function getAudioLevel() {
+
+    if (!analyser || !frequencyData) {
+
+        return .15 +
+            Math.sin(Date.now() / 300) * .04;
+
+    }
+
+    analyser.getByteFrequencyData(
+        frequencyData
+    );
+
+    let total = 0;
+
+    for (
+        let i = 0;
+        i < frequencyData.length;
+        i++
+    ) {
+
+        total += frequencyData[i];
+
+    }
+
+    return (
+        total /
+        frequencyData.length /
+        255
+    );
+
+}
+
+
+/* -------------------------
+   GRADIENT
+------------------------- */
+
+function backgroundGradient() {
+
+    const g =
+        ctx.createLinearGradient(
+            0,
+            0,
+            state.width,
+            state.height
+        );
+
+    g.addColorStop(
+        0,
+        state.background
+    );
+
+    g.addColorStop(
+        .5,
+        mixColors(
+            state.background,
+            state.primary,
+            .08
+        )
+    );
+
+    g.addColorStop(
+        1,
+        mixColors(
+            state.background,
+            state.secondary,
+            .06
+        )
+    );
+
+    return g;
+
+}
+
+
+/* -------------------------
+   MAIN RENDER LOOP
+------------------------- */
+
+function render() {
+
+    animationFrame =
+        requestAnimationFrame(render);
+
+    const level =
+        getAudioLevel();
+
+    const t =
+        performance.now() / 1000;
+
+    ctx.fillStyle =
+        backgroundGradient();
+
+    ctx.fillRect(
+        0,
+        0,
+        state.width,
+        state.height
+    );
+
+    switch (state.style) {
+
+        case "neon":
+            drawNeon(level,t);
+            break;
+
+        case "futuristic":
+            drawFuturistic(level,t);
+            break;
+
+        case "aurora":
+            drawAurora(level,t);
+            break;
+
+        case "sunset":
+            drawSunset(level,t);
+            break;
+
+        case "minimal":
+            drawMinimal(level,t);
+            break;
+
+        case "cyber":
+            drawCyber(level,t);
+            break;
+
+        case "particles":
+            drawParticles(level,t);
+            break;
+
+        case "custom":
+            drawCustom(level,t);
+            break;
+
+        default:
+            drawNeon(level,t);
+
+    }
+
+    drawTitle();
+
+    drawLyrics();
+
+}
+
+render();
+
+
+/* -------------------------
+   NEON
+------------------------- */
+
+function drawNeon(level,t) {
+
+    const cx =
+        state.width / 2;
+
+    const cy =
+        state.height / 2;
+
+    const base =
+        Math.min(
+            state.width,
+            state.height
+        ) * .18;
+
+    ctx.save();
+
+    ctx.globalCompositeOperation =
+        "lighter";
+
+    for (let ring = 0; ring < 8; ring++) {
+
+        const radius =
+            base +
+            ring * base * .45 +
+            level *
+            state.intensity *
+            2;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            cx,
+            cy,
+            radius,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.lineWidth =
+            2 + level * 9;
+
+        ctx.strokeStyle =
+            ring % 2 === 0
+                ? hexToRgba(
+                    state.primary,
+                    .20
+                )
+                : hexToRgba(
+                    state.secondary,
+                    .18
+                );
+
+        ctx.shadowBlur =
+            state.glow * 1.3;
+
+        ctx.shadowColor =
+            ring % 2 === 0
+                ? state.primary
+                : state.secondary;
+
+        ctx.stroke();
+
+    }
+
+    drawBars(level);
+
+    ctx.restore();
+
+}
+
+
+/* -------------------------
+   FUTURISTIC GRID
+------------------------- */
+
+function drawFuturistic(level,t) {
+
+    ctx.save();
+
+    const horizon =
+        state.height * .57;
+
+    ctx.strokeStyle =
+        hexToRgba(
+            state.secondary,
+            .20 + level * .35
+        );
+
+    ctx.lineWidth = 2;
+
+    const spacing =
+        Math.max(
+            45,
+            state.width * .045
+        );
+
+    for (
+        let x = -state.width;
+        x < state.width * 2;
+        x += spacing
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            state.width / 2,
+            horizon
+        );
+
+        ctx.lineTo(
+            x,
+            state.height
+        );
+
+        ctx.stroke();
+
+    }
+
+    for (
+        let i = 0;
+        i < 15;
+        i++
+    ) {
+
+        const p =
+            i / 15;
+
+        const y =
+            horizon +
+            Math.pow(p, 2) *
+            state.height * .5;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y
+        );
+
+        ctx.lineTo(
+            state.width,
+            y
+        );
+
+        ctx.stroke();
+
+    }
+
+    ctx.restore();
+
+    drawSpectrumCircle(level);
+
+}
+
+
+/* -------------------------
+   AURORA
+------------------------- */
+
+function drawAurora(level,t) {
+
+    ctx.save();
+
+    ctx.globalCompositeOperation =
+        "screen";
+
+    for (
+        let i = 0;
+        i < 5;
+        i++
+    ) {
+
+        const x =
+            state.width *
+            (
+                .15 +
+                i * .2 +
+                Math.sin(
+                    t * .35 + i
+                ) * .12
+            );
+
+        const y =
+            state.height *
+            (
+                .25 +
+                Math.cos(
+                    t * .25 + i
+                ) * .18
+            );
+
+        const r =
+            state.width *
+            (
+                .3 +
+                level * .4
+            );
+
+        const g =
+            ctx.createRadialGradient(
+                x,
+                y,
+                0,
+                x,
+                y,
+                r
+            );
+
+        g.addColorStop(
+            0,
+            hexToRgba(
+                i % 2
+                    ? state.secondary
+                    : state.primary,
+                .25
+            )
+        );
+
+        g.addColorStop(
+            1,
+            "transparent"
+        );
+
+        ctx.fillStyle = g;
+
+        ctx.fillRect(
+            0,
+            0,
+            state.width,
+            state.height
+        );
+
+    }
+
+    ctx.restore();
+
+    drawBars(level);
+
+}
+
+
+/* -------------------------
+   SUNSET
+------------------------- */
+
+function drawSunset(level,t) {
+
+    const g =
+        ctx.createLinearGradient(
+            0,
+            0,
+            state.width,
+            state.height
+        );
+
+    g.addColorStop(
+        0,
+        "#ff1744"
+    );
+
+    g.addColorStop(
+        .45,
+        "#ff7b00"
+    );
+
+    g.addColorStop(
+        1,
+        "#3c0b75"
+    );
+
+    ctx.globalAlpha = .35;
+
+    ctx.fillStyle = g;
+
+    ctx.fillRect(
+        0,
+        0,
+        state.width,
+        state.height
+    );
+
+    ctx.globalAlpha = 1;
+
+    const cx =
+        state.width / 2;
+
+    const cy =
+        state.height * .45;
+
+    const r =
+        Math.min(
+            state.width,
+            state.height
+        ) * (
+            .12 +
+            level * .18
+        );
+
+    const rg =
+        ctx.createRadialGradient(
+            cx,
+            cy,
+            0,
+            cx,
+            cy,
+            r
+        );
+
+    rg.addColorStop(
+        0,
+        "#fff"
+    );
+
+    rg.addColorStop(
+        .2,
+        "#ffcc33"
+    );
+
+    rg.addColorStop(
+        1,
+        "transparent"
+    );
+
+    ctx.fillStyle = rg;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx,
+        cy,
+        r,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    drawBars(level);
+
+}
+
+
+/* -------------------------
+   MINIMAL
+------------------------- */
+
+function drawMinimal(level,t) {
+
+    const cx =
+        state.width / 2;
+
+    const cy =
+        state.height / 2;
+
+    const r =
+        Math.min(
+            state.width,
+            state.height
+        ) * (
+            .18 +
+            level * .35
+        );
+
+    ctx.save();
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx,
+        cy,
+        r,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.strokeStyle =
+        hexToRgba(
+            state.primary,
+            .7
+        );
+
+    ctx.lineWidth =
+        3 + level * 8;
+
+    ctx.shadowBlur =
+        state.glow;
+
+    ctx.shadowColor =
+        state.primary;
+
+    ctx.stroke();
+
+    ctx.restore();
+
+}
+
+
+/* -------------------------
+   CYBER
+------------------------- */
+
+function drawCyber(level,t) {
+
+    ctx.save();
+
+    for (
+        let i = 0;
+        i < 20;
+        i++
+    ) {
+
+        const y =
+            (
+                i / 20
+            ) *
+            state.height;
+
+        ctx.strokeStyle =
+            hexToRgba(
+                state.secondary,
+                .07
+            );
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y
+        );
+
+        ctx.lineTo(
+            state.width,
+            y
+        );
+
+        ctx.stroke();
+
+    }
+
+    for (
+        let i = 0;
+        i < 12;
+        i++
+    ) {
+
+        const x =
+            (
+                i / 12
+            ) *
+            state.width;
+
+        ctx.strokeStyle =
+            hexToRgba(
+                state.primary,
+                .06
+            );
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x,
+            0
+        );
+
+        ctx.lineTo(
+            x,
+            state.height
+        );
+
+        ctx.stroke();
+
+    }
+
+    ctx.restore();
+
+    drawSpectrumCircle(level);
+
+}
+
+
+/* -------------------------
+   PARTICLES
+------------------------- */
+
+function drawParticles(level,t) {
+
+    ctx.save();
+
+    ctx.globalCompositeOperation =
+        "lighter";
+
+    particles.forEach(p => {
+
+        p.y -= p.speed;
+
+        if (p.y < 0)
+            p.y = 1;
+
+        const pulse =
+            1 +
+            level *
+            state.intensity /
+            20;
+
+        const x =
+            p.x *
+            state.width;
+
+        const y =
+            p.y *
+            state.height;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            p.size * pulse,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            hexToRgba(
+                Math.random() > .5
+                    ? state.primary
+                    : state.secondary,
+                p.opacity
+            );
+
+        ctx.shadowBlur =
+            state.glow;
+
+        ctx.shadowColor =
+            state.primary;
+
+        ctx.fill();
+
+    });
+
+    ctx.restore();
+
+}
+
+
+/* -------------------------
+   CUSTOM
+------------------------- */
+
+function drawCustom(level,t) {
+
+    drawParticles(
+        level,
+        t
+    );
+
+    drawMinimal(
+        level,
+        t
+    );
+
+}
+
+
+/* -------------------------
+   BARS
+------------------------- */
+
+function drawBars(level) {
+
+    if (
+        !state.showVisualizer
+    ) return;
+
+    const count = 64;
+
+    const width =
+        state.width /
+        count;
+
+    ctx.save();
+
+    ctx.globalCompositeOperation =
+        "lighter";
+
+    for (
+        let i = 0;
+        i < count;
+        i++
+    ) {
+
+        let value = level;
+
+        if (
+            analyser &&
+            frequencyData
+        ) {
+
+            const index =
+                Math.floor(
+                    i /
+                    count *
+                    frequencyData.length
+                );
+
+            value =
+                frequencyData[index] /
+                255;
+
+        }
+
+        const barHeight =
+            Math.max(
+                5,
+                value *
+                state.height *
+                .17 *
+                (
+                    .4 +
+                    state.intensity / 60
+                )
+            );
+
+        const x =
+            i *
+            width;
+
+        const y =
+            state.height -
+            barHeight -
+            state.height * .04;
+
+        const gradient =
+            ctx.createLinearGradient(
+                0,
+                y,
+                0,
+                state.height
+            );
+
+        gradient.addColorStop(
+            0,
+            state.secondary
+        );
+
+        gradient.addColorStop(
+            1,
+            hexToRgba(
+                state.primary,
+                .1
+            )
+        );
+
+        ctx.fillStyle =
+            gradient;
+
+        ctx.fillRect(
+            x,
+            y,
+            width * .55,
+            barHeight
+        );
+
+    }
+
+    ctx.restore();
+
+}
+
+
+/* -------------------------
+   CIRCLE SPECTRUM
+------------------------- */
+
+function drawSpectrumCircle(level) {
+
+    const cx =
+        state.width / 2;
+
+    const cy =
+        state.height * .43;
+
+    const radius =
+        Math.min(
+            state.width,
+            state.height
+        ) * .17;
+
+    const bars = 96;
+
+    ctx.save();
+
+    ctx.translate(
+        cx,
+        cy
+    );
+
+    ctx.globalCompositeOperation =
+        "lighter";
+
+    for (
+        let i = 0;
+        i < bars;
+        i++
+    ) {
+
+        let value = level;
+
+        if (
+            analyser &&
+            frequencyData
+        ) {
+
+            const index =
+                Math.floor(
+                    i /
+                    bars *
+                    frequencyData.length
+                );
+
+            value =
+                frequencyData[index] /
+                255;
+
+        }
+
+        const angle =
+            i /
+            bars *
+            Math.PI *
+            2;
+
+        const inner =
+            radius;
+
+        const outer =
+            radius +
+            value *
+            state.width *
+            .12;
+
+        const x1 =
+            Math.cos(angle) *
+            inner;
+
+        const y1 =
+            Math.sin(angle) *
+            inner;
+
+        const x2 =
+            Math.cos(angle) *
+            outer;
+
+        const y2 =
+            Math.sin(angle) *
+            outer;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x1,
+            y1
+        );
+
+        ctx.lineTo(
+            x2,
+            y2
+        );
+
+        ctx.lineWidth = 3;
+
+        ctx.strokeStyle =
+            i % 2
+                ? state.primary
+                : state.secondary;
+
+        ctx.shadowBlur =
+            state.glow;
+
+        ctx.shadowColor =
+            state.primary;
+
+        ctx.stroke();
+
+    }
+
+    ctx.restore();
+
+}
+
+
+/* -------------------------
+   TITLE
+------------------------- */
+
+function drawTitle() {
+
+    if (!state.showTitle)
+        return;
+
+    const title =
+        document.getElementById(
+            "titleInput"
+        ).value ||
+        "My New Song";
+
+    const artist =
+        document.getElementById(
+            "artistInput"
+        ).value ||
+        "Artist";
+
+    ctx.save();
+
+    const fontSize =
+        state.width < state.height
+            ? state.width * .045
+            : state.height * .06;
+
+    ctx.textAlign = "center";
+
+    ctx.font =
+        `800 ${fontSize}px Inter, Arial`;
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.shadowBlur =
+        state.glow * .6;
+
+    ctx.shadowColor =
+        state.primary;
+
+    ctx.fillText(
+        title,
+        state.width / 2,
+        state.height * .09
+    );
+
+    ctx.font =
+        `400 ${fontSize * .45}px Inter, Arial`;
+
+    ctx.fillStyle =
+        hexToRgba(
+            "#ffffff",
+            .7
+        );
+
+    ctx.shadowBlur = 0;
+
+    ctx.fillText(
+        artist,
+        state.width / 2,
+        state.height * .12
+    );
+
+    ctx.restore();
+
+}
+
+
+/* -------------------------
+   LYRICS
+------------------------- */
+
+function drawLyrics() {
+
+    if (!state.showLyrics)
+        return;
+
+    const raw =
+        document.getElementById(
+            "lyricsInput"
+        ).value.trim();
+
+    if (!raw)
+        return;
+
+    const lines =
+        raw.split("\n")
+            .filter(Boolean);
+
+    if (!lines.length)
+        return;
+
+    const currentLine =
+        Math.floor(
+            (
+                audio.currentTime /
+                Math.max(
+                    audio.duration || 1,
+                    1
+                )
+            ) *
+            lines.length
+        );
+
+    const line =
+        lines[
+            Math.min(
+                currentLine,
+                lines.length - 1
+            )
+        ];
+
+    const fontSize =
+        state.fontSize *
+        (
+            state.width /
+            1080
+        );
+
+    let y;
+
+    if (
+        state.lyricsPosition ===
+        "top"
+    ) {
+
+        y =
+            state.height * .22;
+
+    } else if (
+        state.lyricsPosition ===
+        "center"
+    ) {
+
+        y =
+            state.height * .52;
+
+    } else {
+
+        y =
+            state.height * .82;
+
+    }
+
+    ctx.save();
+
+    ctx.textAlign = "center";
+
+    ctx.font =
+        `800 ${fontSize}px Inter, Arial`;
+
+    ctx.fillStyle =
+        state.lyricsColor;
+
+    if (
+        document.getElementById(
+            "lyricsShadow"
+        ).checked
+    ) {
+
+        ctx.shadowBlur =
+            state.glow * .5;
+
+        ctx.shadowColor =
+            state.lyricsAccent;
+
+    }
+
+    const maxWidth =
+        state.width * .82;
+
+    wrapText(
+        line,
+        state.width / 2,
+        y,
+        maxWidth,
+        fontSize * 1.25
+    );
+
+    ctx.restore();
+
+}
+
+
+/* -------------------------
+   TEXT WRAP
+------------------------- */
+
+function wrapText(
+    text,
+    x,
+    y,
+    maxWidth,
+    lineHeight
+) {
+
+    const words =
+        text.split(" ");
+
+    let line = "";
+
+    let lines = [];
+
+    words.forEach(word => {
+
+        const test =
+            line
+                ? line + " " + word
+                : word;
+
+        const metrics =
+            ctx.measureText(test);
+
+        if (
+            metrics.width >
+            maxWidth &&
+            line
+        ) {
+
+            lines.push(line);
+
+            line = word;
+
+        } else {
+
+            line = test;
+
+        }
+
+    });
+
+    if (line)
+        lines.push(line);
+
+    const offset =
+        (
+            lines.length - 1
+        ) *
+        lineHeight /
+        2;
+
+    lines.forEach(
+        (item,index) => {
+
+            ctx.fillText(
+                item,
+                x,
+                y -
+                offset +
+                index *
+                lineHeight
+            );
+
+        }
+    );
+
+}
+
+
+/* -------------------------
+   SPEECH RECOGNITION
+------------------------- */
+
+function startSpeechRecognition() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        document.getElementById(
+            "speechStatus"
+        ).textContent =
+            "Speech recognition is not supported in this browser. Try Chrome or Edge.";
+
+        return;
+
+    }
+
+    if (recognitionRunning)
+        return;
+
+    recognition =
+        new SpeechRecognition();
+
+    recognition.continuous = true;
+
+    recognition.interimResults = true;
+
+    recognition.lang = "en-US";
+
+    recognitionRunning = true;
+
+    const status =
+        document.getElementById(
+            "speechStatus"
+        );
+
+    status.textContent =
+        "Listening... speak or play the vocal track near your microphone.";
+
+    recognition.onresult = event => {
+
+        let finalText = "";
+
+        for (
+            let i =
+                event.resultIndex;
+            i < event.results.length;
+            i++
+        ) {
+
+            const transcript =
+                event.results[i][0].transcript;
+
+            if (
+                event.results[i].isFinal
+            ) {
+
+                finalText +=
+                    transcript + "\n";
+
+            }
+
+        }
+
+        if (finalText) {
+
+            const box =
+                document.getElementById(
+                    "lyricsInput"
+                );
+
+            box.value +=
+                finalText;
+
+        }
+
+    };
+
+    recognition.onerror = event => {
+
+        status.textContent =
+            "Speech recognition error: " +
+            event.error;
+
+        recognitionRunning = false;
+
+    };
+
+    recognition.onend = () => {
+
+        recognitionRunning = false;
+
+        if (
+            status.textContent
+                .startsWith("Listening")
+        ) {
+
+            status.textContent =
+                "Speech recognition stopped.";
+
+        }
+
+    };
+
+    recognition.start();
+
+}
+
+
+function stopSpeechRecognition() {
+
+    if (
+        recognition &&
+        recognitionRunning
+    ) {
+
+        recognition.stop();
+
+    }
+
+    recognitionRunning = false;
+
+    document.getElementById(
+        "speechStatus"
+    ).textContent =
+        "Speech recognition stopped.";
+
+}
+
+
+function clearLyrics() {
+
+    document.getElementById(
+        "lyricsInput"
+    ).value = "";
+
+}
+
+
+/* -------------------------
+   TEMPLATES
+------------------------- */
+
+function applyTemplate(style) {
+
+    state.style = style;
+
+    document.getElementById(
+        "styleSelect"
+    ).value = style;
+
+    const presets = {
+
+        neon: {
+            primary:"#ff00cc",
+            secondary:"#00e5ff",
+            background:"#03000b"
+        },
+
+        futuristic: {
+            primary:"#7c5cff",
+            secondary:"#00e5ff",
+            background:"#030710"
+        },
+
+        sunset: {
+            primary:"#ff4d6d",
+            secondary:"#ff9f1c",
+            background:"#180308"
+        },
+
+        aurora: {
+            primary:"#00ffc8",
+            secondary:"#743dff",
+            background:"#020b12"
+        },
+
+        minimal: {
+            primary:"#ffffff",
+            secondary:"#aaaaaa",
+            background:"#050505"
+        },
+
+        particles: {
+            primary:"#7c5cff",
+            secondary:"#00e5ff",
+            background:"#02030a"
+        }
+
+    };
+
+    const p =
+        presets[style] ||
+        presets.neon;
+
+    state.primary =
+        p.primary;
+
+    state.secondary =
+        p.secondary;
+
+    state.background =
+        p.background;
+
+    document.getElementById(
+        "color1"
+    ).value =
+        p.primary;
+
+    document.getElementById(
+        "color2"
+    ).value =
+        p.secondary;
+
+    document.getElementById(
+        "backgroundColor"
+    ).value =
+        p.background;
+
+    document.getElementById(
+        "styleStatus"
+    ).textContent =
+        formatName(style);
+
+    switchTab("studio");
+
+    showToast(
+        formatName(style) +
+        " template applied."
+    );
+
+}
+
+
+/* -------------------------
+   VIDEO EXPORT
+------------------------- */
+
+async function exportVideo() {
+
+    if (!window.MediaRecorder) {
+
+        showToast(
+            "This browser does not support video recording."
+        );
+
+        return;
+
+    }
+
+    if (!state.audioLoaded) {
+
+        showToast(
+            "Upload an audio track first."
+        );
+
+        return;
+
+    }
+
+    if (state.recording)
+        return;
+
+    state.recording = true;
+
+    recordedChunks = [];
+
+    showToast(
+        "Preparing video export..."
+    );
+
+    try {
+
+        if (
+            audioContext &&
+            audioContext.state ===
+            "suspended"
+        ) {
+
+            await audioContext.resume();
+
+        }
+
+        const stream =
+            canvas.captureStream(30);
+
+        const audioDestination =
+            audioContext.createMediaStreamDestination();
+
+        sourceNode.connect(
+            audioDestination
+        );
+
+        audioDestination.stream
+            .getAudioTracks()
+            .forEach(track => {
+
+                stream.addTrack(track);
+
+            });
+
+        let mimeType =
+            "video/webm;codecs=vp9,opus";
+
+        if (
+            !MediaRecorder.isTypeSupported(
+                mimeType
+            )
+        ) {
+
+            mimeType =
+                "video/webm;codecs=vp8,opus";
+
+        }
+
+        if (
+            !MediaRecorder.isTypeSupported(
+                mimeType
+            )
+        ) {
+
+            mimeType =
+                "video/webm";
+
+        }
+
+        mediaRecorder =
+            new MediaRecorder(
+                stream,
+                {
+                    mimeType,
+                    videoBitsPerSecond:
+                        8_000_000
+                }
+            );
+
+        mediaRecorder.ondataavailable =
+            event => {
+
+                if (
+                    event.data &&
+                    event.data.size > 0
+                ) {
+
+                    recordedChunks.push(
+                        event.data
+                    );
+
+                }
+
+            };
+
+        mediaRecorder.onstop = () => {
+
+            const blob =
+                new Blob(
+                    recordedChunks,
+                    {
+                        type: mimeType
+                    }
+                );
+
+            const url =
+                URL.createObjectURL(
+                    blob
+                );
+
+            const a =
+                document.createElement(
+                    "a"
+                );
+
+            a.href = url;
+
+            const title =
+                document.getElementById(
+                    "titleInput"
+                ).value
+                .replace(
+                    /[^a-z0-9]/gi,
+                    "_"
+                ) ||
+                "vybe-video";
+
+            a.download =
+                title +
+                "-" +
+                state.ratio +
+                ".webm";
+
+            a.click();
+
+            URL.revokeObjectURL(url);
+
+            state.recording = false;
+
+            try {
+
+                sourceNode.disconnect(
+                    audioDestination
+                );
+
+            } catch {}
+
+            showToast(
+                "Video exported successfully."
+            );
+
+        };
+
+        audio.currentTime = 0;
+
+        mediaRecorder.start();
+
+        await audio.play();
+
+        const checkFinished =
+            setInterval(() => {
+
+                if (
+                    audio.ended ||
+                    audio.currentTime >=
+                    audio.duration - .05
+                ) {
+
+                    clearInterval(
+                        checkFinished
+                    );
+
+                    if (
+                        mediaRecorder.state !==
+                        "inactive"
+                    ) {
+
+                        mediaRecorder.stop();
+
+                    }
+
+                }
+
+            }, 200);
+
+        showToast(
+            "Recording video..."
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        state.recording = false;
+
+        showToast(
+            "Export failed. Check browser permissions."
+        );
+
+    }
+
+}
+
+
+/* -------------------------
+   NEW PROJECT
+------------------------- */
+
+function newProject() {
+
+    document.getElementById(
+        "titleInput"
+    ).value =
+        "My New Song";
+
+    document.getElementById(
+        "artistInput"
+    ).value =
+        "Artist";
+
+    document.getElementById(
+        "lyricsInput"
+    ).value =
+        "";
+
+    audio.pause();
+
+    audio.currentTime = 0;
+
+    state.style = "neon";
+
+    state.primary = "#7c5cff";
+
+    state.secondary = "#00e5ff";
+
+    state.background = "#030409";
+
+    document.getElementById(
+        "styleSelect"
+    ).value =
+        "neon";
+
+    document.getElementById(
+        "color1"
+    ).value =
+        "#7c5cff";
+
+    document.getElementById(
+        "color2"
+    ).value =
+        "#00e5ff";
+
+    document.getElementById(
+        "backgroundColor"
+    ).value =
+        "#030409";
+
+    showToast(
+        "New project created."
+    );
+
+}
+
+
+/* -------------------------
+   AI ASSISTANT
+------------------------- */
+
+function sendMessage() {
+
+    const input =
+        document.getElementById(
+            "chatInput"
+        );
+
+    const message =
+        input.value.trim();
+
+    if (!message)
+        return;
+
+    addChatMessage(
+        message,
+        "user"
+    );
+
+    input.value = "";
+
+    setTimeout(() => {
+
+        const response =
+            generateAssistantResponse(
+                message
+            );
+
+        addChatMessage(
+            response,
+            "ai"
+        );
+
+    }, 350);
+
+}
+
+
+function addChatMessage(
+    message,
+    type
+) {
+
+    const chat =
+        document.getElementById(
+            "chat"
+        );
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.className =
+        "message " + type;
+
+    div.textContent =
+        message;
+
+    chat.appendChild(div);
+
+    chat.scrollTop =
+        chat.scrollHeight;
+
+}
+
+
+function generateAssistantResponse(
+    message
+) {
+
+    const text =
+        message.toLowerCase();
+
+    if (
+        text.includes("neon") ||
+        text.includes("cyber") ||
+        text.includes("futur")
+    ) {
+
+        return "Try the Futuristic Grid or Neon Pulse preset. Use cyan + purple, medium-high glow, and synchronized circular spectrum bars. For TikTok, keep the main lyrics around the center/lower-center safe area.";
+
+    }
+
+    if (
+        text.includes("sad") ||
+        text.includes("emotional")
+    ) {
+
+        return "For an emotional track, try Aurora or Minimal. Use dark blue/purple colors, lower animation intensity, soft glow, and large lyrics with plenty of empty space.";
+
+    }
+
+    if (
+        text.includes("trap") ||
+        text.includes("hip") ||
+        text.includes("rap")
+    ) {
+
+        return "For trap or hip-hop, try Cyber or Neon Pulse. Use stronger bass-reactive bars, purple/cyan colors, a darker background, and bold lyrics that change line-by-line.";
+
+    }
+
+    if (
+        text.includes("caption")
+    ) {
+
+        return "Caption idea: 'Turn the volume up. 🎧 Which line hit you the hardest?' Add your artist name and a short hook from the song.";
+
+    }
+
+    if (
+        text.includes("title") ||
+        text.includes("name")
+    ) {
+
+        return "For a strong visual title, keep it short—2 to 5 words. Use a bold font, subtle glow and high contrast against the background.";
+
+    }
+
+    if (
+        text.includes("tiktok") ||
+        text.includes("reel")
+    ) {
+
+        return "Use 9:16 for TikTok and Reels. Keep important lyrics away from the very top and bottom because platform UI elements can cover them.";
+
+    }
+
+    return "I'd start with Neon Pulse for an energetic modern look. If you want something more cinematic, switch to Aurora; for a technology-inspired look, try Futuristic Grid or Cyber.";
+
+}
+
+
+/* -------------------------
+   HELPERS
+------------------------- */
+
+function switchTab(id) {
+
+    navButtons.forEach(button => {
+
+        button.classList.toggle(
+            "active",
+            button.dataset.tab === id
+        );
+
+    });
+
+    tabs.forEach(tab => {
+
+        tab.classList.toggle(
+            "active",
+            tab.id === id
+        );
+
+    });
+
+    const activeButton =
+        document.querySelector(
+            `.nav button[data-tab="${id}"]`
+        );
+
+    if (activeButton) {
+
+        pageTitle.textContent =
+            activeButton.textContent.trim();
+
+    }
+
+}
+
+
+function hexToRgba(
+    hex,
+    alpha
+) {
+
+    hex =
+        hex.replace(
+            "#",
+            ""
+        );
+
+    if (
+        hex.length === 3
+    ) {
+
+        hex =
+            hex
+                .split("")
+                .map(c => c + c)
+                .join("");
+
+    }
+
+    const bigint =
+        parseInt(
+            hex,
+            16
+        );
+
+    const r =
+        (bigint >> 16) & 255;
+
+    const g =
+        (bigint >> 8) & 255;
+
+    const b =
+        bigint & 255;
+
+    return `rgba(${r},${g},${b},${alpha})`;
+
+}
+
+
+function mixColors(
+    color1,
+    color2,
+    amount
+) {
+
+    const a =
+        hexToRgb(color1);
+
+    const b =
+        hexToRgb(color2);
+
+    const r =
+        Math.round(
+            a.r +
+            (b.r - a.r) *
+            amount
+        );
+
+    const g =
+        Math.round(
+            a.g +
+            (b.g - a.g) *
+            amount
+        );
+
+    const bValue =
+        Math.round(
+            a.b +
+            (b.b - a.b) *
+            amount
+        );
+
+    return `rgb(${r},${g},${bValue})`;
+
+}
+
+
+function hexToRgb(hex) {
+
+    hex =
+        hex.replace(
+            "#",
+            ""
+        );
+
+    if (
+        hex.length === 3
+    ) {
+
+        hex =
+            hex
+                .split("")
+                .map(c => c + c)
+                .join("");
+
+    }
+
+    const number =
+        parseInt(
+            hex,
+            16
+        );
+
+    return {
+
+        r:
+            (number >> 16) & 255,
+
+        g:
+            (number >> 8) & 255,
+
+        b:
+            number & 255
+
+    };
+
+}
+
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    toast.textContent =
+        message;
+
+    toast.classList.add("show");
+
+    clearTimeout(
+        window.__toastTimer
+    );
+
+    window.__toastTimer =
+        setTimeout(() => {
+
+            toast.classList.remove(
+                "show"
+            );
+
+        }, 3000);
+
+}
+
+
+/* -------------------------
+   KEYBOARD SHORTCUTS
+------------------------- */
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        if (
+            e.code === "Space" &&
+            document.activeElement.tagName !==
+                "INPUT" &&
+            document.activeElement.tagName !==
+                "TEXTAREA"
+        ) {
+
+            e.preventDefault();
+
+            if (
+                audio.paused
+            ) {
+
+                audio.play();
+
+            } else {
+
+                audio.pause();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* -------------------------
+   INITIALIZATION
+------------------------- */
+
+setRatio("vertical");
+
+applyTemplate("neon");
+
+</script>
+
+</body>
+</html>
