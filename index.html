@@ -1,307 +1,139 @@
-html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Flow Music Visualizer & Lyric Generator</title>
+    <title>AuraVibe Studio Pro</title>
+    <script src="https://tailwindcss.com"></script>
+    <link href="https://cloudflare.com" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background-color: #030306;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        #appContainer {
-            position: relative;
-            flex: 1;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-        #lyricsContainer {
-            position: absolute;
-            bottom: 18%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 4;
-            text-align: center;
-            width: 80%;
-            pointer-events: none;
-            text-shadow: 0 0 20px rgba(0, 0, 0, 1), 0 0 10px rgba(0, 229, 255, 0.6);
-        }
-        #currentLyric {
-            font-size: 32px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-            transition: transform 0.1s ease;
-        }
-        #nextLyric {
-            font-size: 20px;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.45);
-            letter-spacing: 0.5px;
-        }
-        #controlPanel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            background: rgba(8, 8, 14, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 20px;
-            border-radius: 14px;
-            width: 340px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-        }
-        .panelSection {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.5);
-            font-weight: 600;
-        }
-        .fileInputWrapper {
-            position: relative;
-            width: 100%;
-            height: 38px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        .fileInputWrapper input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        textarea {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #fff;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 11px;
-            height: 90px;
-        }
-        .sliderGroup {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        input[type="range"] {
-            flex: 1;
-            accent-color: #00e5ff;
-            cursor: pointer;
-        }
-        .sliderVal {
-            font-size: 11px;
-            font-family: monospace;
-            width: 30px;
-            text-align: right;
-            color: rgba(255, 255, 255, 0.8);
-        }
-        button {
-            background: #00e5ff;
-            color: #000;
-            border: none;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        button:hover:not(:disabled) {
-            background: #00b3cc;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.35);
-        }
-        button:disabled {
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.2);
-            cursor: not-allowed;
-        }
-        #stampBtn {
-            background: #ffe600;
-            color: #000;
-        }
-        #stampBtn:hover:not(:disabled) {
-            background: #cca700;
-            box-shadow: 0 0 15px rgba(255, 230, 0, 0.35);
-        }
-        
-        /* Spotify Player Dashboard Layout */
-        #playerDashboard {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            width: 60%;
-            min-width: 450px;
-            max-width: 800px;
-            background: rgba(12, 12, 20, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 16px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
-        }
-        .playerControls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-        }
-        .mainPlayBtn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #ffffff;
-            color: #000000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            border: none;
-        }
-        .mainPlayBtn:hover:not(:disabled) {
-            transform: scale(1.06);
-            background: #00e5ff;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
-        }
-        .timelineContainer {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-        }
-        .timeLabel {
-            font-size: 11px;
-            font-family: monospace;
-            color: rgba(255, 255, 255, 0.5);
-            width: 45px;
-        }
-        .timeLabel.right { text-align: right; }
-        .scrubBar {
-            flex: 1;
-            height: 5px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 3px;
-            outline: none;
-            transition: background 0.2s;
-        }
-        .scrubBar::-webkit-slider-runnable-track { width: 100%; height: 5px; cursor: pointer; }
-        .scrubBar::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #00e5ff;
-            cursor: pointer;
-            margin-top: -3.5px;
-            box-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
-        }
-        #recordBtn { background: #ff0055; color: white; }
-        #audioElement { display: none; }
+        @import url('https://googleapis.com');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; }
+        .glass-panel { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .gradient-text { background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        canvas { background-color: #000; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
     </style>
 </head>
-<body>
+<body class="text-gray-100 min-h-screen flex flex-col">
 
-    <div id="appContainer">
-        <canvas id="visualizerCanvas"></canvas>
+    <!-- Header Navigation -->
+    <header class="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-gray-800">
+        <div class="flex items-center space-x-3">
+            <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i class="fa-solid fa-wand-magic-sparkles text-xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">AuraVibe <span class="text-indigo-400 font-medium">Studio</span></h1>
+                <p class="text-xs text-gray-400">Next-Gen Video Synthesis</p>
+            </div>
+        </div>
+
+        <nav class="flex space-x-2 bg-gray-900/60 p-1 rounded-xl border border-gray-800/80">
+            <button onclick="switchTab('studio')" id="btn-studio" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-indigo-600 text-white shadow-md">
+                <i class="fa-solid fa-compact-disc mr-2"></i>Aesthetic Engine
+            </button>
+            <button onclick="switchTab('custom')" id="btn-custom" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800">
+                <i class="fa-solid fa-sliders mr-2"></i>Custom Lab
+            </button>
+            <button onclick="switchTab('presets')" id="btn-presets" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800">
+                <i class="fa-solid fa-photo-film mr-2"></i>Social Formats
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Workspace Dashboard -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1600px] w-full mx-auto">
         
-        <div id="lyricsContainer">
-            <div id="currentLyric">Load a song to begin flow...</div>
-            <div id="nextLyric"></div>
-        </div>
-
-        <!-- Left Setup Panel: Generator Matrix -->
-        <div id="controlPanel">
-            <div class="panelSection">
-                <label>1. Audio Track Source</label>
-                <div class="fileInputWrapper">
-                    <span id="audioTrackLabel" style="font-size:12px;color:rgba(255,255,255,0.7)">Choose audio file...</span>
-                    <input type="file" id="audioInput" accept="audio/*">
-                </div>
-            </div>
-
-            <div class="panelSection">
-                <label>2. Live Lyric Timestamp Generator</label>
-                <span style="font-size: 10px; color:rgba(255,255,255,0.4)">Paste text, play music, and tap Stamp or Spacebar on the beat:</span>
-                <textarea id="lyricsTextarea" placeholder="Line 1 of song&#10;Line 2 of song&#10;Line 3 of song"></textarea>
-                <button id="stampBtn" disabled>⚡ Stamp Current Line</button>
-            </div>
-
-            <div class="panelSection">
-                <label>Aura Particle Color Hue</label>
-                <div class="sliderGroup">
-                    <input type="range" id="hueSlider" min="0" max="360" value="195">
-                    <span class="sliderVal" id="hueVal">195</span>
-                </div>
-            </div>
-
-            <div class="panelSection">
-                <label>Bass Flow Velocity</label>
-                <div class="sliderGroup">
-                    <input type="range" id="sensSlider" min="1" max="5" step="0.1" value="2.5">
-                    <span class="sliderVal" id="sensVal">2.5</span>
-                </div>
-            </div>
+        <!-- Controls Column (Left) -->
+        <div class="lg:col-span-4 flex flex-col space-y-6">
             
-            <button id="recordBtn" disabled>Record Layout Video</button>
-        </div>
+            <!-- Asset Intake Section -->
+            <div class="glass-panel rounded-2xl p-5 space-y-4">
+                <h3 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">1. Media & Format Core</h3>
+                
+                <div>
+                    <label class="block text-xs text-gray-400 font-medium mb-2">AUDIO SOURCE</label>
+                    <div class="relative flex items-center justify-center border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-xl p-4 transition-colors group cursor-pointer">
+                        <input type="file" id="audio-input" accept="audio/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                        <div class="text-center group-hover:scale-105 transition-transform" id="upload-placeholder">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-indigo-400 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-300">Drop audio track or browse</p>
+                            <p class="text-xs text-gray-500 mt-1">MP3, WAV, M4A supported</p>
+                        </div>
+                    </div>
+                    <div id="audio-meta" class="hidden flex items-center justify-between bg-gray-900/60 p-3 rounded-xl mt-3 border border-gray-800">
+                        <div class="flex items-center space-x-2 truncate">
+                            <i class="fa-solid fa-music text-indigo-400"></i>
+                            <span id="audio-filename" class="text-xs font-medium truncate text-gray-300">track.mp3</span>
+                        </div>
+                        <button onclick="togglePlayback()" id="play-btn" class="h-8 w-8 rounded-full bg-indigo-500 hover:bg-indigo-600 flex items-center justify-center text-white transition-colors">
+                            <i class="fa-solid fa-play text-xs pl-0.5"></i>
+                        </button>
+                    </div>
+                </div>
 
-        <!-- Bottom Spotify Dash: Seek and State Layout -->
-        <div id="playerDashboard">
-            <div class="timelineContainer">
-                <span class="timeLabel" id="timeCurrent">0:00</span>
-                <input type="range" id="scrubBar" class="scrubBar" min="0" max="100" value="0" step="0.1" disabled>
-                <span class="timeLabel right" id="timeTotal">0:00</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 font-medium mb-1.5">ASPECT RATIO</label>
+                        <select id="aspect-ratio" onchange="adjustCanvasRatio()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="9:16">9:16 (TikTok/Reels)</option>
+                            <option value="16:9">16:9 (YouTube/Widescreen)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 font-medium mb-1.5">OUTPUT RENDER</label>
+                        <select id="render-res" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="720">720p (Fast)</option>
+                            <option value="1080">1080p (HQ Production)</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="playerControls">
+
+            <!-- Tabbed Workspaces -->
+            <div class="glass-panel rounded-2xl p-5 flex-1 flex flex-col min-h-[400px]">
+                
+                <!-- TAB 1: MODERN/FUTURISTIC ENGINE -->
+                <div id="tab-studio" class="tab-content active space-y-4">
+                    <h3 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">2. Generative Aesthetics</h3>
+                    <p class="text-xs text-gray-400">Select an algorithmic style vector to instantly compute the baseline scene.</p>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="setTheme('cyberpunk')" class="flex flex-col items-center justify-center p-4 bg-gray-900/80 border border-gray-800 hover:border-pink-500 rounded-xl transition-all group">
+                            <i class="fa-solid fa-bolt text-pink-500 text-lg mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-semibold">Cyberpunk Aura</span>
+                        </button>
+                        <button onclick="setTheme('neon-minimal')" class="flex flex-col items-center justify-center p-4 bg-gray-900/80 border border-gray-800 hover:border-indigo-500 rounded-xl transition-all group">
+                            <i class="fa-solid fa-wave-square text-indigo-400 text-lg mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-semibold">Neon Minimal</span>
+                        </button>
+                        <button onclick="setTheme('liquid-gold')" class="flex flex-col items-center justify-center p-4 bg-gray-900/80 border border-gray-800 hover:border-amber-500 rounded-xl transition-all group">
+                            <i class="fa-solid fa-circle-nodes text-amber-500 text-lg mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-semibold">Liquid Gold Flow</span>
+                        </button>
+                        <button onclick="setTheme('hyperdrive')" class="flex flex-col items-center justify-center p-4 bg-gray-900/80 border border-gray-800 hover:border-emerald-500 rounded-xl transition-all group">
+                            <i class="fa-solid fa-startext-emerald-400 text-lg mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-semibold">Hyperdrive Grid</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB 2: FREE CREATION LAB -->
+                <div id="tab-custom" class="tab-content space-y-4">
+                    <h3 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">2. Granular Property Lab</h3>
+                    
+                    <div class="space-y-3.5">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1.5">
+                                <span class="text-gray-400 font-medium">PARTICLE QUANTITY</span>
+                                <span id="val-particles" class="text-indigo-400 font-mono">150</span>
+                            </div>
+                            <input type="range" id="param-particles" min="50" max="400" value="150" class="w-full accent-indigo-500 bg-gray-800 h-1 rounded-lg appearance-none">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1.5">
+                                <span class="text-gray-400 font-medium">BASS SENSITIVITY SCALE</span>
+                                <span id="val-bass" class="text-indigo-400 font-mono">1.5</span>
